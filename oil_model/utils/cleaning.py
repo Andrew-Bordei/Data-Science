@@ -82,7 +82,7 @@ def axis_manipulation(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 def resample_data(df: pd.DataFrame) -> pd.DataFrame:
-    """Changes the data sampling from monthly, yearly to daily. Filling the nan values with respective row entry  
+    """Changes the data sampling from monthly/yearly to daily. Filling the nan values with respective row entry  
         
     Args:
         df pd.DataFrame: dataframe 

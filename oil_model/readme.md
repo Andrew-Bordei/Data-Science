@@ -1,4 +1,4 @@
-# Machine Learning Oil Price Forecast Model 
+# Crude Oil Machine Learning Forecast Model
 
 ## Dataset
 

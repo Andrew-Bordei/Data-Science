@@ -2,6 +2,19 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import polars as pl
 
+def print_popular_stats(df: pl.DataFrame, category: str) -> pl.DataFrame:
+    """Returns a df with most for most popular stats based on category 
+    Args:
+        str: Column name
+        pl.DataFrame: df 
+        
+    Returns:
+        pl.DataFrame: df 
+    """
+
+    print(f"10 most popular {category}:")
+    print(df.select(pl.col(f"{category}").value_counts(sort=True))[:10])
+
 def list_comprehension(array: list[int], input_type: str) -> list[int]:
     """Returns a list comprehension for either item id's or frequency of purchases 
     Args:

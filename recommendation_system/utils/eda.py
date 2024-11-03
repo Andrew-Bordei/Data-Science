@@ -13,7 +13,7 @@ def print_popular_stats(df: pl.DataFrame, category: str) -> pl.DataFrame:
     """
 
     print(f"10 most popular {category}:")
-    print(df.select(pl.col(f"{category}").value_counts(sort=True))[:10])
+    return df.select(pl.col(f"{category}").value_counts(sort=True)).unnest(f'{category}')[:10]
 
 def list_comprehension(array: list[int], input_type: str) -> list[int]:
     """Returns a list comprehension for either item id's or frequency of purchases 
@@ -45,6 +45,7 @@ def bar_plot(x: list[int], y: list[int], title: str) -> plt.Figure:
     fig, ax = plt.subplots(figsize=(12,8))
     plt.title(title)
     sns.barplot(x=x, y=y, ax=ax)
+    plt.xticks(rotation=90)
     plt.show()
 
 def pie_chart(data: pl.Series, labels: list[str], title: str) -> plt.Figure:

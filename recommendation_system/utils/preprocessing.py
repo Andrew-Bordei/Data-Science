@@ -25,7 +25,7 @@ def encoding(df: pl.DataFrame) -> pl.DataFrame:
     encoder = LabelEncoder()
 
     for i in purchases_df.columns:
-        if i == 'transactionId':
+        if i == 'transactionId' or i == 'fullVisitorId':
             continue
         encoder.fit(purchases_df.select(pl.col(f'{i}')))
         encoded_data = encoder.transform(purchases_df.select(pl.col(f'{i}')))
@@ -33,7 +33,8 @@ def encoding(df: pl.DataFrame) -> pl.DataFrame:
     
     return purchases_df
 
-def calculate_similarity(df: pl.DataFrame) -> dict[str,int]:
+def calculate_similarity(user_profiles: pl.DataFrame, user_profiles_no_id: pl.DataFrame, 
+                         active_users: pl.DataFrame) -> dict[str,int]:
     """ 
     Args:
         : 
@@ -43,11 +44,11 @@ def calculate_similarity(df: pl.DataFrame) -> dict[str,int]:
         pl.DataFrame:  
     """
     profile_avg_similarity = {}
-    for i in range(0,len(df)):
+    for i in range(0,len(user_profiles)):
         user_profile_df = np.vstack(user_profiles_no_id[i]).T
         avg_similarity = cosine_similarity(user_profile_df, [active_users[-1]])
         avg_similarity = avg_similarity.mean()
-        profile_avg_similarity[f'{user_profile_df['fullVisitorId'][i]}'] = avg_similarity
+        profile_avg_similarity[f'{user_profiles['fullVisitorId'][i]}'] = avg_similarity
     return profile_avg_similarity
 
 def sort_similarities(profile_avg_similarity: dict) -> dict[str,int]:

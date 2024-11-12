@@ -2,6 +2,7 @@ import polars as pl
 from sklearn.preprocessing import LabelEncoder
 import numpy as np 
 from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.metrics import precision_score
 
 
 def encoding(df: pl.DataFrame) -> pl.DataFrame: 
@@ -72,6 +73,51 @@ def recommendation(df: pl.DataFrame, similarity_dict: dict) -> pl.DataFrame:
     Returns:
         pl.DataFrame:  
     """
-    recommendations = df.filter((pl.col('fullVisitorId') == similarity_dict[-1][0]) & ((pl.col('transactionId') != "null")))
-    recommendations = recommendations.select(pl.col('v2ProductName')).unique()
-    return recommendations
+    index = -1
+    recs = [] 
+    
+    while len(recs) < 3:
+        recommendations = df.filter((pl.col('fullVisitorId') == similarity_dict[index][0]) & ((pl.col('transactionId') != "null")))
+        print(recommendations)
+        recommendations = recommendations.select(pl.col('v2ProductName')).unique()
+        recs.append(recommendations)
+        index -= 1
+
+    # recommendations = df.filter((pl.col('fullVisitorId') == similarity_dict[-1][0]) & ((pl.col('transactionId') != "null")))
+    # recommendations = recommendations.select(pl.col('v2ProductName')).unique()
+    return 0
+
+def evaluate_recommendations(df: pl.DataFrame, test_df: pl.DataFrame, similarity_dict: dict, k: int) -> dict:
+    """
+    Evaluates recommendations using precision.
+    
+    Args:
+        df (pl.DataFrame): Original data containing product interactions.
+        test_df (pl.DataFrame): Test data to validate recommendations.
+        similarity_dict (dict): Dictionary of user similarities for recommendations.
+        k (int): The number of top recommendations to consider.
+    
+    Returns:
+        dict: A dictionary containing precision@k and recall@k.
+    """
+    # Store evaluation results
+    precision_list = []
+
+    for user_id, _ in similarity_dict.items():
+        # Generate recommendations for the user
+        recommendations = recommendation(df, similarity_dict).head(k)
+
+        # Get ground truth products from the test set
+        actual_products = test_df.filter((pl.col('fullVisitorId') == user_id) & (pl.col('transactionId') == 1)).select(pl.col('v2ProductName')).to_list()
+
+        # Calculate Precision@K and Recall@K
+        if actual_products:
+            relevant_recs = [1 if rec in actual_products else 0 for rec in recommendations['v2ProductName']]
+            precision = sum(relevant_recs) / k
+            
+            precision_list.append(precision)
+
+    # Average the precision and recall across users
+    avg_precision = np.mean(precision_list)
+
+    return {'precision@k': avg_precision}

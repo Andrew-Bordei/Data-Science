@@ -14,9 +14,9 @@ def encoding(df: pl.DataFrame) -> pl.DataFrame:
     Returns:
         pl.DataFrame:  
     """
-    df = df.select(pl.col('fullVisitorId'),pl.col('country'), 
-              pl.col('browser'),pl.col('transactionId'),
-              pl.col('v2ProductName'))
+    df = df.select(pl.col('fullVisitorId'),pl.col('country'), pl.col('city'), 
+              pl.col('browser'),pl.col('operatingSystem'),pl.col('deviceCategory'),
+              pl.col('source'),pl.col('transactionId'),pl.col('v2ProductName'))
     
     df = df.with_columns(pl.when(pl.col('transactionId') != 'null').then(1).
                          otherwise(0).alias("transactionId"))
@@ -35,7 +35,7 @@ def encoding(df: pl.DataFrame) -> pl.DataFrame:
     return purchases_df
 
 def calculate_similarity(user_profiles: pl.DataFrame, user_profiles_no_id: pl.DataFrame, 
-                         active_users: pl.DataFrame) -> dict[str,int]:
+                         active_user: np.array) -> dict[str,int]:
     """ 
     Args:
         : 
@@ -47,7 +47,7 @@ def calculate_similarity(user_profiles: pl.DataFrame, user_profiles_no_id: pl.Da
     profile_avg_similarity = {}
     for i in range(0,len(user_profiles)):
         user_profile_df = np.vstack(user_profiles_no_id[i]).T
-        avg_similarity = cosine_similarity(user_profile_df, [active_users[-1]])
+        avg_similarity = cosine_similarity(user_profile_df, [active_user])
         avg_similarity = avg_similarity.mean()
         profile_avg_similarity[f'{user_profiles['fullVisitorId'][i]}'] = avg_similarity
     return profile_avg_similarity
@@ -78,14 +78,11 @@ def recommendation(df: pl.DataFrame, similarity_dict: dict) -> pl.DataFrame:
     
     while len(recs) < 3:
         recommendations = df.filter((pl.col('fullVisitorId') == similarity_dict[index][0]) & ((pl.col('transactionId') != "null")))
-        print(recommendations)
-        recommendations = recommendations.select(pl.col('v2ProductName')).unique()
+        recommendations = recommendations.select(pl.col('v2ProductName')).unique().item(0,'v2ProductName')
         recs.append(recommendations)
         index -= 1
 
-    # recommendations = df.filter((pl.col('fullVisitorId') == similarity_dict[-1][0]) & ((pl.col('transactionId') != "null")))
-    # recommendations = recommendations.select(pl.col('v2ProductName')).unique()
-    return 0
+    return recs
 
 def evaluate_recommendations(df: pl.DataFrame, test_df: pl.DataFrame, similarity_dict: dict, k: int) -> dict:
     """

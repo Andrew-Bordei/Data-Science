@@ -86,7 +86,7 @@ def recommendation(df: pl.DataFrame, similarity_dict: dict) -> pl.DataFrame:
 
     return recs
 
-def precision(actual: pl.DataFrame, predicted: pl.DataFrame, k: int) -> dict:
+def precision(bought: pl.DataFrame, predicted: pl.DataFrame, k: int) -> dict:
     """
     Evaluates recommendations using precision@k
     
@@ -96,8 +96,8 @@ def precision(actual: pl.DataFrame, predicted: pl.DataFrame, k: int) -> dict:
     Returns:
 
     """
-    act_set = set(actual)
+    bought_set = set(bought)
     pred_set = set(predicted[:k])
-    result = round(len(act_set & pred_set) / float(len(pred_set)), 2)
+    result = round(len(bought_set & pred_set) / float(len(pred_set)), 2)
 
     return result

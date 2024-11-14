@@ -45,7 +45,7 @@ def target_encoding(df: pl.DataFrame) -> pl.DataFrame:
     """
     df = df.select(pl.col('fullVisitorId'),pl.col('country'), pl.col('city'), 
               pl.col('browser'),pl.col('operatingSystem'),pl.col('deviceCategory'),
-              pl.col('source'),pl.col('transactionId'),pl.col('v2ProductName'))
+              pl.col('source'),pl.col('transactionId'),pl.col('v2ProductCategory'))
     
     df = df.with_columns(pl.when(pl.col('transactionId') != 'null').then(1).
                          otherwise(0).alias("transactionId"))
@@ -106,7 +106,7 @@ def recommendation(df: pl.DataFrame, similarity_dict: dict) -> pl.DataFrame:
     while len(recs) < 5:
         recommendations = df.filter((pl.col('fullVisitorId') == similarity_dict[index][0]) & ((pl.col('transactionId') != "null")))
         if len(recommendations) > 0:
-            recommendations = recommendations.select(pl.col('v2ProductName')).unique().item(0,'v2ProductName')
+            recommendations = recommendations.select(pl.col('v2ProductCategory')).unique().item(0,'v2ProductCategory')
             recs.append(recommendations)
         index -= 1
 

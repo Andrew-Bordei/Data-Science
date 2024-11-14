@@ -5,7 +5,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.metrics import precision_score
 
 
-def encoding(df: pl.DataFrame) -> pl.DataFrame: 
+def label_encoding(df: pl.DataFrame) -> pl.DataFrame: 
     """ 
     Args:
          : 
@@ -21,7 +21,6 @@ def encoding(df: pl.DataFrame) -> pl.DataFrame:
     df = df.with_columns(pl.when(pl.col('transactionId') != 'null').then(1).
                          otherwise(0).alias("transactionId"))
     
-    # purchases_df = df.filter(pl.col('transactionId') == 1)
     purchases_df = df
 
     encoder = LabelEncoder()
@@ -34,6 +33,33 @@ def encoding(df: pl.DataFrame) -> pl.DataFrame:
         purchases_df = purchases_df.with_columns(pl.Series(f'{i}', encoded_data))
     
     return purchases_df
+
+def target_encoding(df: pl.DataFrame) -> pl.DataFrame:
+    """ 
+    Args:
+         : 
+         :   
+        
+    Returns:
+        pl.DataFrame:  
+    """
+    df = df.select(pl.col('fullVisitorId'),pl.col('country'), pl.col('city'), 
+              pl.col('browser'),pl.col('operatingSystem'),pl.col('deviceCategory'),
+              pl.col('source'),pl.col('transactionId'),pl.col('v2ProductName'))
+    
+    df = df.with_columns(pl.when(pl.col('transactionId') != 'null').then(1).
+                         otherwise(0).alias("transactionId"))
+    
+    for i in df.columns:
+        if i == 'date' or i == 'visitStartTime' or i == 'fullVisitorId' or i == 'transactionId':
+            continue 
+        category_means = df.group_by(pl.col(f'{i}')).agg(
+            pl.col('transactionId').mean()
+        )
+        df = df.join(category_means, on=f'{i}', how='left')
+        df = df.with_columns(pl.col("transactionId_right").alias(f"{i}")).drop("transactionId_right")
+
+    return df
 
 def calculate_similarity(user_profiles: pl.DataFrame, user_profiles_no_id: pl.DataFrame, 
                          active_user: np.array) -> dict[str,int]:

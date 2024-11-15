@@ -12,7 +12,7 @@ def print_popular_stats(df: pl.DataFrame, category: str) -> pl.DataFrame:
         pl.DataFrame: df 
     """
 
-    print(f"10 most popular {category}:")
+    # print(f"10 most popular {category}:")
     return df.select(pl.col(f"{category}").value_counts(sort=True)).unnest(f'{category}')[:10]
 
 def list_comprehension(array: list[int], input_type: str) -> list[int]:

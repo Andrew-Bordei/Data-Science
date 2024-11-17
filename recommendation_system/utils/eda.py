@@ -44,7 +44,7 @@ def bar_plot(x: list[int], y: list[int], title: str) -> plt.Figure:
     """
     fig, ax = plt.subplots(figsize=(12,8))
     plt.title(title)
-    sns.barplot(x=x, y=y, ax=ax)
+    sns.barplot(x=x, y=y, ax=ax, color="#1c4ede")
     plt.xticks(rotation=90)
     plt.show()
 
@@ -58,7 +58,9 @@ def pie_chart(data: pl.Series, labels: list[str], title: str) -> plt.Figure:
     Returns:
         plt.Figure: Pie chart of the provided data 
     """
+    
     plt.subplots(figsize=(12, 8))
-    plt.pie(data, explode=(0, 0.25, 0.25),labels=labels,autopct='%1.1f%%')
+    plt.pie(data,labels=labels,autopct='%.1f%%',labeldistance=1.1,
+            shadow=True,startangle=60)
     plt.title(title)
     plt.show()

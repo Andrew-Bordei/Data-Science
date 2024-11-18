@@ -113,8 +113,7 @@ def recommendation(df: pl.DataFrame, similarity_dict: dict) -> pl.DataFrame:
     return recs
 
 def precision(bought: pl.DataFrame, predicted: pl.DataFrame, k: int) -> dict:
-    """
-    Evaluates recommendations using precision@k
+    """Evaluates recommendations using precision@k
     
     Args:
         
@@ -127,3 +126,29 @@ def precision(bought: pl.DataFrame, predicted: pl.DataFrame, k: int) -> dict:
     result = round(len(bought_set & pred_set) / float(len(pred_set)), 2)
 
     return result
+
+def recommendation_eval_pipeline(active_user: str, user_profiles: pl.DataFrame, 
+                                 encoded_df: pl.DataFrame, original_df: pl.DataFrame) -> float:
+    """
+    
+    Args:
+        
+    
+    Returns:
+
+    """
+    user_profiles = user_profiles.filter(pl.col('fullVisitorId') != f"{active_user}")
+
+    user_profiles_no_id = user_profiles.drop('fullVisitorId')
+    user_profiles_no_id = user_profiles_no_id.to_numpy()
+
+    active_user_data = list(encoded_df.filter(pl.col('fullVisitorId') == f"{active_user}").row(-1))[1:]
+    similarities = calculate_similarity(user_profiles, user_profiles_no_id, active_user_data)
+    sorted_dict = sorted(similarities.items(), key=lambda x: x[1])
+    actual_bought = original_df.filter((pl.col('fullVisitorId') == f"{active_user}") & (pl.col('transactionId') != 'null')
+                                       ).select(pl.col('v2ProductCategory')).to_series().to_list()
+    rec = recommendation(original_df,sorted_dict)
+    rec_precision = precision(actual_bought, rec, 5)
+
+    # return "Customer purchases: ", actual_bought, "Recommendations: ",rec, "Rec precision: ", rec_precision
+    return rec_precision

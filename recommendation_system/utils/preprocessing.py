@@ -2,7 +2,6 @@ import polars as pl
 from sklearn.preprocessing import LabelEncoder
 import numpy as np 
 from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.metrics import precision_score
 
 
 def label_encoding(df: pl.DataFrame) -> pl.DataFrame: 
@@ -127,6 +126,29 @@ def precision(bought: pl.DataFrame, predicted: pl.DataFrame, k: int) -> dict:
 
     return result
 
+def recommendation_pipeline(active_user: str, user_profiles: pl.DataFrame, 
+                            encoded_df: pl.DataFrame, original_df: pl.DataFrame) -> list[str]:
+    """
+    
+    Args:
+        
+    
+    Returns:
+
+    """
+    # print(user_profiles)
+    user_profiles = user_profiles.filter(pl.col("fullVisitorId") != f"{active_user}")
+
+    user_profiles_no_id = user_profiles.drop("fullVisitorId")
+    user_profiles_no_id = user_profiles_no_id.to_numpy()
+
+    active_user_data = list(encoded_df.filter(pl.col("fullVisitorId") == f"{active_user}").row(-1))[1:]
+    similarities = calculate_similarity(user_profiles, user_profiles_no_id, active_user_data)
+    sorted_dict = sorted(similarities.items(), key=lambda x: x[1])
+    rec = recommendation(original_df,sorted_dict)
+
+    return rec
+
 def recommendation_eval_pipeline(active_user: str, user_profiles: pl.DataFrame, 
                                  encoded_df: pl.DataFrame, original_df: pl.DataFrame) -> float:
     """
@@ -137,18 +159,10 @@ def recommendation_eval_pipeline(active_user: str, user_profiles: pl.DataFrame,
     Returns:
 
     """
-    user_profiles = user_profiles.filter(pl.col('fullVisitorId') != f"{active_user}")
-
-    user_profiles_no_id = user_profiles.drop('fullVisitorId')
-    user_profiles_no_id = user_profiles_no_id.to_numpy()
-
-    active_user_data = list(encoded_df.filter(pl.col('fullVisitorId') == f"{active_user}").row(-1))[1:]
-    similarities = calculate_similarity(user_profiles, user_profiles_no_id, active_user_data)
-    sorted_dict = sorted(similarities.items(), key=lambda x: x[1])
     actual_bought = original_df.filter((pl.col('fullVisitorId') == f"{active_user}") & (pl.col('transactionId') != 'null')
                                        ).select(pl.col('v2ProductCategory')).to_series().to_list()
-    rec = recommendation(original_df,sorted_dict)
-    rec_precision = precision(actual_bought, rec, 5)
-
-    # return "Customer purchases: ", actual_bought, "Recommendations: ",rec, "Rec precision: ", rec_precision
+    rec_precision = precision(actual_bought, 
+                              recommendation_pipeline(active_user, user_profiles, 
+                                                      encoded_df, original_df),5)
+    
     return rec_precision

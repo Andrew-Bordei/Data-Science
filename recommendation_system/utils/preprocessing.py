@@ -136,7 +136,6 @@ def recommendation_pipeline(active_user: str, user_profiles: pl.DataFrame,
     Returns:
 
     """
-    # print(user_profiles)
     user_profiles = user_profiles.filter(pl.col("fullVisitorId") != f"{active_user}")
 
     user_profiles_no_id = user_profiles.drop("fullVisitorId")

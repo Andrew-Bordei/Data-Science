@@ -1,7 +1,16 @@
 import streamlit as st
 import numpy as np
 import polars as pl
-import matplotlib.pyplot as plt
+import os 
+import sys
+
+# Manually add path to read from another folder 
+path2add = os.path.normpath(
+    os.path.abspath(os.path.join(os.path.dirname("__file__"), os.path.pardir, "utils"))
+)
+if not (path2add in sys.path):
+    sys.path.append(path2add)
+
 import preprocessing
 # from main import recommendations, model_eval
 models = {"Cosine Similarity", "Neural Net"}
@@ -12,11 +21,13 @@ models = {"Cosine Similarity", "Neural Net"}
 # rec_df = pl.read_csv("../data/recommendations.csv",ignore_errors=True)
 model_accuracy = pl.read_csv("../data/model_accuracy.csv",ignore_errors=True)
 
-df = pl.read_csv("./raw_data.csv",ignore_errors=True)
+df = pl.read_csv("../data/google_analytics_data.csv",ignore_errors=True)
 df = df.with_columns(pl.col("fullVisitorId").cast(str))
+encoded_df = pl.read_csv("../data/encoded_df.csv",ignore_errors=True)
+encoded_df = encoded_df.with_columns(pl.col("fullVisitorId").cast(str))
 
 df = df.filter(~pl.col('v2ProductCategory').str.contains('origCatName'))
-encoded_df = preprocessing.target_encoding(df)
+# encoded_df = preprocessing.target_encoding(df)
 
 purchasing_users=encoded_df.filter(pl.col('transactionId') != 0).select(pl.col('fullVisitorId')).unique()
 
@@ -57,17 +68,4 @@ with left_column:
 
 with right_column:
     st.write("Average model accuracy: ",f"{np.round(model_accuracy.mean().item(),2)*100}%")
-    
-st.sidebar.selectbox("Contact information??", 0.25)
-
-
-# st.header("Top 10 Most Sold Categories")
-# categories = data_df.filter(pl.col('transactionId') != 'null').select(pl.col('v2ProductCategory'))
-# categories = categories.select(pl.col("v2ProductCategory").value_counts(sort=True)).unnest("v2ProductCategory")
-# fig, ax = plt.subplots(figsize=(12,8))
-# plt.pie(categories['count'][:10],labels=categories['v2ProductCategory'][:10],
-#         autopct='%.1f%%',labeldistance=1.1,
-#             shadow=True,startangle=60)
-# st.pyplot(fig)
-
     

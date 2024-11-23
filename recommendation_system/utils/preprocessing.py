@@ -136,6 +136,9 @@ def recommendation_pipeline(active_user: str, user_profiles: pl.DataFrame,
     Returns:
 
     """
+    user_profiles = user_profiles.with_columns(pl.col("fullVisitorId").cast(str))
+    encoded_df = encoded_df.with_columns(pl.col("fullVisitorId").cast(str))
+
     user_profiles = user_profiles.filter(pl.col("fullVisitorId") != f"{active_user}")
 
     user_profiles_no_id = user_profiles.drop("fullVisitorId")
@@ -165,3 +168,11 @@ def recommendation_eval_pipeline(active_user: str, user_profiles: pl.DataFrame,
                                                       encoded_df, original_df),5)
     
     return rec_precision
+
+def user_profiles(encoded_df: pl.DataFrame) -> pl.DataFrame:
+    user_profiles = encoded_df.group_by(pl.col('fullVisitorId')).agg(
+        pl.col('country'), pl.col('city'), 
+        pl.col('browser'),pl.col('operatingSystem'),pl.col('deviceCategory'),
+        pl.col('source'),pl.col('transactionId'),pl.col('v2ProductCategory')
+    )
+    return user_profiles

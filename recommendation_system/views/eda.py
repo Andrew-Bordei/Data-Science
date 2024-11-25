@@ -2,13 +2,13 @@ import streamlit as st
 import polars as pl
 import plotly.express as px
 
-encoded_df = pl.read_csv("../data/encoded_df.csv",ignore_errors=True)
-daily_purchases = pl.read_csv("../data/daily_purchases.csv",ignore_errors=True)
-daily_visitors= pl.read_csv("../data/daily_visitors.csv",ignore_errors=True)
-pie_categories = pl.read_csv("../data/pie_categories.csv",ignore_errors=True)
-pie_products = pl.read_csv("../data/pie_products.csv",ignore_errors=True)
-viewed_categories = pl.read_csv("../data/viewed_categories.csv",ignore_errors=True)
-viewed_products = pl.read_csv("../data/viewed_products.csv",ignore_errors=True)
+encoded_df = pl.read_csv("./data/encoded_df.csv",ignore_errors=True)
+daily_purchases = pl.read_csv("./data/daily_purchases.csv",ignore_errors=True)
+daily_visitors= pl.read_csv("./data/daily_visitors.csv",ignore_errors=True)
+pie_categories = pl.read_csv("./data/pie_categories.csv",ignore_errors=True)
+pie_products = pl.read_csv("./data/pie_products.csv",ignore_errors=True)
+viewed_categories = pl.read_csv("./data/viewed_categories.csv",ignore_errors=True)
+viewed_products = pl.read_csv("./data/viewed_products.csv",ignore_errors=True)
 
 pie_options = ["Most Sold Categories", "Most Sold Products", "Most Viewed Categories", "Most Viewed Products"]
 daily_options = ["Daily Purchases", "Daily Users"]

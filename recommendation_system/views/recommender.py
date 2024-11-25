@@ -1,15 +1,6 @@
 import streamlit as st
 import polars as pl
 import plotly.express as px 
-import os 
-import sys
-
-# Manually add path to read from another folder 
-path2add = os.path.normpath(
-    os.path.abspath(os.path.join(os.path.dirname("__file__"), os.path.pardir, "utils"))
-)
-if not (path2add in sys.path):
-    sys.path.append(path2add)
 
 from utils import preprocessing
 

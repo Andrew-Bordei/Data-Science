@@ -1,5 +1,7 @@
 import streamlit as st 
+import os 
 
+path = os.path.join(os.path.dirname(__file__), "..", "assets",)
 @st.dialog("Contact Me")
 def contact_form():
     st.write("Email: andrewcbordei@yahoo.com")
@@ -10,7 +12,7 @@ def contact_form():
 
 left_column, right_column = st.columns(2)
 with left_column:
-    st.image("./assets/LinkedIn_profile_pic_cropped.png",width=300)
+    st.image(path+"/LinkedIn_profile_pic_cropped.png",width=300)
 
 with right_column:
     st.title("Andrew Bordei")

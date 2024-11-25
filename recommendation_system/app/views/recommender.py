@@ -1,5 +1,4 @@
 import streamlit as st
-import numpy as np
 import polars as pl
 import plotly.express as px 
 import os 
@@ -13,7 +12,6 @@ if not (path2add in sys.path):
     sys.path.append(path2add)
 
 import preprocessing
-models = {"Cosine Similarity", "Neural Net"}
 
 model_accuracy = pl.read_csv("../data/model_accuracy.csv",ignore_errors=True)
 df = pl.read_csv("../data/google_analytics_data.csv",ignore_errors=True)
@@ -31,8 +29,17 @@ user_profiles = preprocessing.user_profiles(encoded_df)
 
 st.title("Ecommerce Recommender")
 st.subheader("An App by Andrew Bordei")
-st.write("This app provides purchase recommendations to users. The data is real traffic from the "
-         "Google merchandise store website. An SQL query was used to acquire the dataset.")
+st.write(
+    """
+    This app provides purchase recommendations to visitors of the Google Merch website. Recommendations are determined by finding
+    the most similar previous purchasing users compared to the current user, then recommending past user purchases to the current user. 
+    Similarity among users is determined by Cosine similarity. The data used is real traffic from the 
+    Google store, which can be found [here](https://www.kaggle.com/datasets/bigquery/google-analytics-sample/data). 
+    The entire code for the app is available on my [GitHub](https://github.com/Andrew-Bordei/Data-Science/tree/main/recommendation_system).
+    If you have any questions, contact me on [LinkedIn](https://www.linkedin.com/in/andrew-bordei-80448813b/).
+    """
+)
+st.write("\n")
 
 left_column, right_column = st.columns(2)
 with left_column:
@@ -41,12 +48,10 @@ with left_column:
     
 with right_column:
     "Recommendations!"
-    recommendations = preprocessing.recommendation_pipeline(user_selected, user_profiles,
-                                                            encoded_df,df)
+    recommendations = preprocessing.recommendation_pipeline(user_selected, user_profiles,encoded_df,df)
     st.dataframe(recommendations,width=200,column_config={"value":"Recommendations"})
 
-model_eval = preprocessing.recommendation_eval_pipeline(user_selected, user_profiles,
-                                                        encoded_df,df)
+model_eval = preprocessing.recommendation_eval_pipeline(user_selected, user_profiles,encoded_df,df)
 
 model_accuracy=model_accuracy.with_columns(model_eval)
 model_accuracy=model_accuracy.transpose()

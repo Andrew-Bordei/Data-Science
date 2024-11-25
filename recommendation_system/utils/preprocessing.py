@@ -175,4 +175,5 @@ def user_profiles(encoded_df: pl.DataFrame) -> pl.DataFrame:
         pl.col('browser'),pl.col('operatingSystem'),pl.col('deviceCategory'),
         pl.col('source'),pl.col('transactionId'),pl.col('v2ProductCategory')
     )
+    user_profiles = user_profiles.with_columns(pl.col("fullVisitorId").cast(str))
     return user_profiles

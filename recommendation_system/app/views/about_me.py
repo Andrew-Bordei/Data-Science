@@ -10,7 +10,7 @@ def contact_form():
 
 left_column, right_column = st.columns(2)
 with left_column:
-    st.image("../assets/LinkedIn profile pic cropped.png",width=300)
+    st.image("../assets/LinkedIn_profile_pic_cropped.png",width=300)
 
 with right_column:
     st.title("Andrew Bordei")

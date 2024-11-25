@@ -1,12 +1,13 @@
 import streamlit as st
 import polars as pl
 import plotly.express as px 
-
 from utils import preprocessing
+import os 
 
-model_accuracy = pl.read_csv("../data/model_accuracy.csv",ignore_errors=True)
-df = pl.read_csv("../data/google_analytics_data.csv",ignore_errors=True)
-encoded_df = pl.read_csv("../data/encoded_df.csv",ignore_errors=True)
+path = os.path.join(os.path.dirname(__file__), "..", "data",)
+model_accuracy = pl.read_csv(path+"/model_accuracy.csv",ignore_errors=True)
+df = pl.read_csv(path+"/google_analytics_data.csv",ignore_errors=True)
+encoded_df = pl.read_csv(path+"/encoded_df.csv",ignore_errors=True)
 
 names = ["Average Accuracy","Selected User Accuracy"]
 names = pl.DataFrame({"Data":names})

@@ -4,9 +4,9 @@ import plotly.express as px
 
 from utils import preprocessing
 
-model_accuracy = pl.read_csv("./data/model_accuracy.csv",ignore_errors=True)
-df = pl.read_csv("./data/google_analytics_data.csv",ignore_errors=True)
-encoded_df = pl.read_csv("./data/encoded_df.csv",ignore_errors=True)
+model_accuracy = pl.read_csv("../data/model_accuracy.csv",ignore_errors=True)
+df = pl.read_csv("../data/google_analytics_data.csv",ignore_errors=True)
+encoded_df = pl.read_csv("../data/encoded_df.csv",ignore_errors=True)
 
 names = ["Average Accuracy","Selected User Accuracy"]
 names = pl.DataFrame({"Data":names})

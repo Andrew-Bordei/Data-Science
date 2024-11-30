@@ -30,7 +30,7 @@ st.subheader("Projects")
 st.write(
     """
     ****WTI Crude Oil Price Forecast****
-    -  Collected 14 datasets via the Federal Reserve's API corresponding to supply, demand, and economic categories to train
+    - Collected 14 datasets via the Federal Reserve's API corresponding to supply, demand, and economic categories to train
     machine learning models’ to forecast daily prices of crude oil.
     - Performed feature engineering by aggregating oil production data to increase model
     accuracy by 5%.

@@ -5,6 +5,7 @@ from utils import preprocessing
 import os 
 
 path = os.path.join(os.path.dirname(__file__), "..", "data",)
+path2 = os.path.join(os.path.dirname(__file__), "..", "assets",)
 model_accuracy = pl.read_csv(path+"/model_accuracy.csv",ignore_errors=True)
 df = pl.read_csv(path+"/google_analytics_data.csv",ignore_errors=True)
 encoded_df = pl.read_csv(path+"/encoded_df.csv",ignore_errors=True)
@@ -18,6 +19,16 @@ df = df.with_columns(pl.col("fullVisitorId").cast(str))
 purchasing_users=df.filter(pl.col('transactionId') != "null").select(pl.col('fullVisitorId')).unique()
 purchasing_users=purchasing_users.filter(pl.col('fullVisitorId') != "None")
 user_profiles = preprocessing.user_profiles(encoded_df)
+
+img = '''
+<style>
+body {
+backgroud-image: url("https://unsplash.com/photos/body-of-water-during-sunset-a2ntpw5HJgg");
+background-size: cover;
+}
+</style>
+''' 
+st.markdown(img, unsafe_allow_html=True)
 
 st.title("Ecommerce Recommender")
 st.subheader("An App by Andrew Bordei")

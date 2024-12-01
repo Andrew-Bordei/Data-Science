@@ -8,7 +8,7 @@ This repo contains projects I have completed with the goal of being more than we
      
     - [Crude Oil Price Forecast](https://github.com/Andrew-Bordei/Data-Science/tree/main/oil_model): Collected oil production data from the Federal Reserve API. Feature engineered the data to increase the XGBRegressor's accuracy by 5%. Discovered the US Dollar(56%) and world oil consumption(28%) were most important features to forecast oil prices.  
 
-    _Tools: scitkit-learn, Pandas, Polars, NumPy, Matplotlib, Seaborn
+    _Tools: scitkit-learn, Pandas, Polars, NumPy, Matplotlib, Seaborn_
 
 - ### Data Analysis and Visualization 
     - 

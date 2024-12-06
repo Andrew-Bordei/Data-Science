@@ -21,10 +21,10 @@ st.title("Exploratory Data Analysis")
 daily_selected = st.selectbox(options=daily_options, label="Data")
 match daily_selected:
     case "Daily Purchases":
-        visitors_px = px.bar(daily_purchases[-90:], x='date', y='len')
+        visitors_px = px.bar(daily_purchases[-90:], x='Date', y='Count')
         st.plotly_chart(visitors_px)
     case "Daily Users":
-        visitors_px = px.bar(daily_visitors[-90:], x='date', y='fullVisitorId')
+        visitors_px = px.bar(daily_visitors[-90:], x='Date', y='Count')
         st.plotly_chart(visitors_px)
 
 # Pie chart 

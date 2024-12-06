@@ -6,10 +6,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 def label_encoding(df: pl.DataFrame) -> pl.DataFrame: 
     """ 
-    Args:
-         : 
-         :   
-        
+    Args:  
     Returns:
         pl.DataFrame:  
     """
@@ -35,10 +32,7 @@ def label_encoding(df: pl.DataFrame) -> pl.DataFrame:
 
 def target_encoding(df: pl.DataFrame) -> pl.DataFrame:
     """ 
-    Args:
-         : 
-         :   
-        
+    Args: 
     Returns:
         pl.DataFrame:  
     """
@@ -64,9 +58,6 @@ def calculate_similarity(user_profiles: pl.DataFrame, user_profiles_no_id: pl.Da
                          active_user: np.array) -> dict[str,int]:
     """ 
     Args:
-        : 
-        :   
-        
     Returns:
         pl.DataFrame:  
     """
@@ -81,9 +72,6 @@ def calculate_similarity(user_profiles: pl.DataFrame, user_profiles_no_id: pl.Da
 def sort_similarities(profile_avg_similarity: dict) -> dict[str,int]:
     """ 
     Args:
-        : 
-        :   
-        
     Returns:
         pl.DataFrame:  
     """
@@ -92,10 +80,7 @@ def sort_similarities(profile_avg_similarity: dict) -> dict[str,int]:
 
 def recommendation(df: pl.DataFrame, similarity_dict: dict) -> pl.DataFrame: 
     """ 
-    Args:
-        : 
-        :   
-        
+    Args:  
     Returns:
         pl.DataFrame:  
     """
@@ -113,12 +98,8 @@ def recommendation(df: pl.DataFrame, similarity_dict: dict) -> pl.DataFrame:
 
 def precision(bought: pl.DataFrame, predicted: pl.DataFrame, k: int) -> dict:
     """Evaluates recommendations using precision@k
-    
     Args:
-        
-    
     Returns:
-
     """
     bought_set = set(bought)
     pred_set = set(predicted[:k])
@@ -129,12 +110,8 @@ def precision(bought: pl.DataFrame, predicted: pl.DataFrame, k: int) -> dict:
 def recommendation_pipeline(active_user: str, user_profiles: pl.DataFrame, 
                             encoded_df: pl.DataFrame, original_df: pl.DataFrame) -> list[str]:
     """
-    
     Args:
-        
-    
     Returns:
-
     """
     user_profiles = user_profiles.with_columns(pl.col("fullVisitorId").cast(str))
     encoded_df = encoded_df.with_columns(pl.col("fullVisitorId").cast(str))
@@ -154,12 +131,8 @@ def recommendation_pipeline(active_user: str, user_profiles: pl.DataFrame,
 def recommendation_eval_pipeline(active_user: str, user_profiles: pl.DataFrame, 
                                  encoded_df: pl.DataFrame, original_df: pl.DataFrame) -> float:
     """
-    
     Args:
-        
-    
     Returns:
-
     """
     actual_bought = original_df.filter((pl.col('fullVisitorId') == f"{active_user}") & (pl.col('transactionId') != 'null')
                                        ).select(pl.col('v2ProductCategory')).to_series().to_list()

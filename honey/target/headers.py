@@ -1,3 +1,19 @@
+TARGET_HEADERS = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:140.0) Gecko/20100101 Firefox/140.0',
+  'Accept': 'application/json',
+  'Accept-Language': 'en-US,en;q=0.5',
+  'Accept-Encoding': 'gzip, deflate, br, zstd',
+  'Referer': 'https://www.target.com/s?searchTerm=honey',
+  'Origin': 'https://www.target.com',
+  'Connection': 'keep-alive',
+  'Sec-Fetch-Dest': 'empty',
+  'Sec-Fetch-Mode': 'cors',
+  'Sec-Fetch-Site': 'same-site',
+  'Sec-GPC': '1',
+  'Priority': 'u=4',
+  'TE': 'trailers',
+}
+
 # 1. Chrome on Windows 10
 HEADERS_1 = {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",

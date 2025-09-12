@@ -3,3 +3,13 @@ recommendation_system/data/purchasing_visitors.csv
 recommendation_system/assets/ecommerce.png
 recommendation_system/data/purchasing_visitors.csv
 recommendation_system/assets/ecommerce.png
+/honey/data
+/honey/data_processing/__pycache__
+honey/honey_grouped_data.csv
+/honey/load/__pycache__
+honey/load/insert_old_data.ipynb
+/honey/scraper/__pycache__
+/honey/scraper/__pycache__
+/honey/target/__pycache__
+/honey/transform/__pycache__
+/honey/walmart/__pycache__

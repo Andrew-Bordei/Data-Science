@@ -19,18 +19,20 @@ def descriptive_stats(df: pd.DataFrame, profit_margin: float) -> dict[str:float]
 
     avg_reviews = round(df['num_reviews'].mean(), 2)
 
-    # Estimated monthly profit 
     monthly_profit = round(df['bought_last_month'].mean() * profit_margin, 2)
 
-    # Estimated yearly profit 
     yearly_profit = round(monthly_profit * 12, 2)
 
     stats = {
-        "average price":avg_price, "average price per ounce": avg_price_per_ounce, 
+        "average price": avg_price, 
+        "average price per ounce": avg_price_per_ounce, 
         "price_per_ounce_stdev": price_per_ounce_stdev, 
-        "average product rating":avg_rating, "average number of reviews": avg_reviews,
-        "average bought last month":avg_bought,"standard dev bought last month": stdev_bought, 
-        "Estimated monthly profit": monthly_profit, "Estimated yearly profit":yearly_profit
+        "average product rating": avg_rating, 
+        "average number of reviews": avg_reviews,
+        "average bought last month": avg_bought,
+        "standard dev bought last month": stdev_bought, 
+        "Estimated monthly profit": monthly_profit, 
+        "Estimated yearly profit": yearly_profit
     }
 
     return stats

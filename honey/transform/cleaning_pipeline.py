@@ -5,27 +5,25 @@ def cleaning_pipeline(df: pd.DataFrame) -> pd.DataFrame:
     """
     Clean the dataframe  
     """ 
-    # Replace None with nan values 
     df = df.fillna(np.nan)
 
     # Select only 1 upc code per product 
     df['product_upc'] = df['product_upc'].astype(str).str.split().str[0] 
 
-    # Strip unnecessary words
-    df['weight'] = df['weight'].str.replace('[A-Za-z]', '',regex=True)
+    df['weight'] = df['weight'].str.replace('[A-Za-z#]', '', regex=True)
     
-    # # Strip unnecessary words
     df['product_rating'] = df['product_rating'].replace({'out of 5 stars': ''}, regex=True)
 
-    # Strip unnecessary words 
     df['bought_last_month'] = df['bought_last_month'].replace({r'\+ bought in past month': ''}, regex=True)
-    # Make thousands be in numeric format 
     df['bought_last_month'] = df['bought_last_month'].replace({'[Kk]': '000'}, regex=True)
 
-    # Strip the word review  
-    df['num_reviews'] = df['num_reviews'].replace({'[Rr]eviews|Review': ''}, regex=True)
-    # Eliminate the comma 
-    df['num_reviews'] = df['num_reviews'].replace({',': ''}, regex=True)
+    df['num_reviews'] = df['num_reviews'].str.extract(r'(\d+)')
+
+    df['honey_seller_rank'] = df['honey_seller_rank'].str.extract(r'(\d+)')
+
+    df['food_rank'] = df['food_rank'].str.split('in').str[0]
+    df['food_rank'] = df['food_rank'].replace({r'[#A-Za-z:(,)?]': ''}, regex=True)
+    df['food_rank'] = df['food_rank'].str.strip()
 
     # Convert columns to their respective datatypes 
     df['price'] = df['price'].astype(float)
@@ -33,11 +31,12 @@ def cleaning_pipeline(df: pd.DataFrame) -> pd.DataFrame:
     df['product_rating'] = df['product_rating'].astype(float)
     df['bought_last_month'] = df['bought_last_month'].astype(float)
     df['weight'] = df['weight'].astype(float)
+    df['honey_seller_rank'] = df['honey_seller_rank'].astype(float)
+    df['food_rank'] = df['food_rank'].astype(float)
 
-    # Calculate price per ounce of each product 
     df['price_per_ounce'] = round((df['price'] / df['weight']), 2)
 
-    # Nan values changed to comply with MySQL data types constraints 
+    # Nan values changed to comply with MySQL data type constraints 
     df = df.replace({np.nan: None})
     
     return df 

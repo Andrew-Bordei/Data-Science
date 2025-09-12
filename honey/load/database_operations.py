@@ -5,18 +5,24 @@ def insert_scraped_data(data: list[dict[str:any]], table_name: str, current_date
     """
     Insert scraped data into a MySQL table 
     """
-    database = mysql.connector.connect(host="localhost",user="root",
-                                    password="!?65DataToTradr&/93", database="honey_data")
+    database = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="!?65DataToTradr&/93",
+        database="honey_data"
+    )
 
     my_cursor = database.cursor()
 
     for i in data:
         my_cursor.execute(f"INSERT INTO {table_name} (title, brand, weight, price, product_rating,"
         "bought_last_month, num_reviews, product_description, product_upc, date_acquired)" 
-        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s , %s, %s);", (i["title"], i["brand"], i["weight"],
-                                                                    i["price"], i["product_rating"], i["bought_last_month"],
-                                                                    i["num_reviews"], i["description"],
-                                                                    i["product_upc"], f"{current_date}"))
+        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s , %s, %s);", (
+            i["title"], i["brand"], i["weight"],
+            i["price"], i["product_rating"], i["bought_last_month"],
+            i["num_reviews"], i["description"],
+            i["product_upc"], f"{current_date}")
+        )
         database.commit()
 
     my_cursor.close()
@@ -27,7 +33,12 @@ def extract_scraped_data(table_name: str) -> pd.DataFrame:
     """
     Extract scraped data from a MySQL table 
     """
-    database = mysql.connector.connect(host="localhost",user="root", password="!?65DataToTradr&/93", database="honey_data")
+    database = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="!?65DataToTradr&/93",
+        database="honey_data"
+    )
 
     my_cursor = database.cursor()
 
@@ -44,15 +55,14 @@ def extract_scraped_data(table_name: str) -> pd.DataFrame:
     df = pd.DataFrame(
         raw_data,
         columns = ["index","title", "brand", "weight",'price','price_per_ounce','product_rating',
-                    'bought_last_month','num_reviews','product_description','product_upc', "date_acquired"])
+            'bought_last_month','num_reviews','product_description','product_upc', "date_acquired"])
     
     return df
 
-def insert_clean_data(df: pd.DataFrame, table_name: str) -> int: 
+def insert_clean_data(df: pd.DataFrame, table_name: str) -> int:  
     """
     Insert cleaned data into a MySQL table 
     """ 
-    # Connect to the database using credentials 
     database = mysql.connector.connect(
         host="localhost", 
         user="root",
@@ -63,22 +73,18 @@ def insert_clean_data(df: pd.DataFrame, table_name: str) -> int:
     # Interface to communicate with database 
     my_cursor = database.cursor()
     
-    # Index won't be inserted into the database 
     df = df.drop(columns=['index'], errors='ignore')
 
     # Convert dataframe to a tuple to comply with executemany requirements 
     data = [tuple(x) for x in df.to_numpy()]
 
-    # Define the insert statement 
     sql_statement = (f"INSERT INTO {table_name} " 
     "(title, brand, weight, price, price_per_ounce, product_rating, bought_last_month, "
     "num_reviews, product_description, product_upc, date_acquired)"
     "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);")
 
-    # Run the query 
     my_cursor.executemany(sql_statement, data)
 
-    # Commit the changes then close the connections to database 
     database.commit()
     my_cursor.close()
     database.close()

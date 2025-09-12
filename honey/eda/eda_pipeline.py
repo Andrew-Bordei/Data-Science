@@ -3,7 +3,7 @@ import sys
 
 sys.path.append('./')
 
-from data_processing.database_operations import *
+from load.database_operations import *
 
 # Define a function to assign buckets
 def assign_bin(rank: float):

@@ -1,125 +1,53 @@
-import requests
-import json
+from Data_Science.honey.extract.extract import Extract
+from Data_Science.honey.extract.session import Session
 
-# url = "https://www.kroger.com/atlas/v1/search/v1/products-search?option.facets=TAXONOMY&option.facets=BRAND&option.facets=NUTRITION&option.facets=MORE_OPTIONS&option.facets=PRICE&option.facets=SAVINGS&option.facets=COLOR&option.facets=FLAVOR&option.facets=SCENT&option.groupBy=PRODUCT_VARIANT&filter.locationId=03400375&filter.query=honey&filter.fulfillmentMethods=IN_STORE&filter.fulfillmentMethods=PICKUP&filter.fulfillmentMethods=DELIVERY&page.offset=24&page.size=50&option.personalization=PURCHASE_HISTORY"
+gtin_headers = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:140.0) Gecko/20100101 Firefox/140.0',
+  'Accept': 'application/json, text/plain, */*',
+  'Accept-Language': 'en-US,en;q=0.5',
+  'Accept-Encoding': 'gzip, deflate, br, zstd',
+  'X-Kroger-Channel': 'WEB',
+  'x-laf-object': '[{"modality":{"type":"PICKUP","handoffLocation":{"storeId":"03400375","facilityId":"14258"},"handoffAddress":{"address":{"addressLines":["11565 S Highway 6"],"cityTown":"Sugar Land","name":"West Airport","postalCode":"77498","stateProvince":"TX","residential":false,"countryCode":"US"},"location":{"lat":29.6479694,"lng":-95.6494359}}},"sources":[{"storeId":"03400375","facilityId":"14258"}],"assortmentKeys":["03400375"],"listingKeys":["03400375"]}]',
+  'Connection': 'keep-alive',
+  'Sec-Fetch-Dest': 'empty',
+  'Sec-Fetch-Mode': 'cors',
+  'Sec-Fetch-Site': 'same-origin',
+  'Sec-GPC': '1',
+  'TE': 'trailers'
+}
 
-def get_product_upcs():
-    url = "https://www.kroger.com/atlas/v1/search/v1/products-search?option.facets=TAXONOMY&option.facets=BRAND&option.facets=NUTRITION&option.facets=MORE_OPTIONS&option.facets=PRICE&option.facets=SAVINGS&option.facets=COLOR&option.facets=FLAVOR&option.facets=SCENT&option.groupBy=PRODUCT_VARIANT&filter.query=honey&filter.fulfillmentMethods=IN_STORE&filter.fulfillmentMethods=PICKUP&filter.fulfillmentMethods=DELIVERY&page.offset=24&page.size=200&option.personalization=PURCHASE_HISTORY"
+product_headers = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:140.0) Gecko/20100101 Firefox/140.0',
+  'Accept': 'application/json, text/plain, */*',
+  'Accept-Language': 'en-US,en;q=0.5',
+  'Accept-Encoding': 'gzip, deflate, br, zstd',
+  'x-laf-object': '[{"modality":{"type":"PICKUP","handoffLocation":{"storeId":"03400375","facilityId":"14258"},"handoffAddress":{"address":{"addressLines":["11565 S Highway 6"],"cityTown":"Sugar Land","name":"West Airport","postalCode":"77498","stateProvince":"TX","residential":false,"countryCode":"US"},"location":{"lat":29.6479694,"lng":-95.6494359}}},"sources":[{"storeId":"03400375","facilityId":"14258"}],"assortmentKeys":["03400375"],"listingKeys":["03400375"]}]',
+  'User-Time-Zone': 'America/Chicago',
+  'X-Kroger-Channel': 'WEB',
+  'x-call-origin': '{"component":"internal search","page":"internal search"}',
+  'x-modality': '{"type":"PICKUP","locationId":"03400375"}',
+  'x-modality-type': 'PICKUP',
+  'X-Facility-Id': '03400375',
+  'Connection': 'keep-alive',
+  'Referer': 'https://www.kroger.com/search?query=honey&searchType=previous_searches',
+  'Sec-Fetch-Dest': 'empty',
+  'Sec-Fetch-Mode': 'cors',
+  'Sec-Fetch-Site': 'same-origin',
+  'Sec-GPC': '1',
+  'TE': 'trailers'
+}
 
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:139.0) Gecko/20100101 Firefox/139.0',
-        'Accept': 'application/json, text/plain, */*',
-        'Accept-Language': 'en-US,en;q=0.5',
-        'Accept-Encoding': 'gzip, deflate, br, zstd',
-        'x-laf-object': '[{"modality":{"type":"PICKUP","handoffLocation":{"storeId":"03400375","facilityId":"14258"},"handoffAddress":{"address":{"addressLines":["11565 S Highway 6"],"cityTown":"Sugar Land","name":"West Airport","postalCode":"77498","stateProvince":"TX","residential":false,"countryCode":"US"},"location":{"lat":29.6479694,"lng":-95.6494359}}},"sources":[{"storeId":"03400375","facilityId":"14258"}],"assortmentKeys":["03400375"],"listingKeys":["03400375"]}]',
-        'Connection': 'keep-alive',
-        'Referer': 'https://www.kroger.com/search?query=honey&searchType=default_search&page=2',
-        #   'Cookie': 'origin=fldc; abTest=cb_5388ca_B|3f_8aae36_B; x-active-modality={"type":"PICKUP","locationId":"03400375","source":"FALLBACK_ACTIVE_MODALITY_COOKIE","createdDate":1748704783701}; dtCookie=v_4_srv_41_sn_0EEC15BCFD96BCEBC502DB5793A17B18_perc_100000_ol_0_mul_1_app-3A81222ad3b2deb1ef_1_rcs-3Acss_0; sid=08de5513-d70f-37ca-aa6c-63e0744251b5; pid=aa6c63e0-7442-08de-51b5-5513d70f37ca; akaalb_KT_Digital_BannerSites=~op=KT_Digital_BannerSites_KCVG_Weighted:cdc|KT_Digital_BannerSites_KCVG:hdc|KT_Digital_BannerSites_Legacy:kcvg|~rv=62~m=cdc:0|hdc:0|kcvg:0|~os=49d9e32c4b6129ccff2e66f9d0390271~id=0a38e6fbf18e9ffb28c6bde3ceffed33; _abck=80CFDF62AB551F43DA998B1417E4E31A~-1~YAAQh/fTF8lVsyOXAQAALdFIJw0Jr6D/sIYAYvPkz9VQ6NfrHAtT1Rnp5hHSudO54PfVfOuLF9XAuaTgHwcpouUUF0AXA0/L4VdVRxKHxWBzuEiu2oi/87YRv7uYKlyDYcZ+srXwdR/pjUgVsu/UN5uDfJ19GulzyvFpfSppP3ZN1rl5avVVXkfNBwH9JBxJmaV/2tab4a7k5xQdI9mUZAh4FIjiz9unbNmjYajSF5qT7gj58ZGhaChLDhXpISc78534n7fZ3BImKIo82am3ZV9MOR+wKzR6VKEc/Yyt2x1dIIWWOjOCaEl2CcO6wqz+v1kSJj6769D/3xSFgQGUAbbFJffh8rZybGhOpJoEgJcNbppZzOHjkfYUPW5TuJ8/MqB4Dsp3ujlh/lJlpgHX3zdqabzqQyySxvhhUaC5ahm3LBGUv1qKWaUVMBcvXFsS9EO+BIy0hUcOnNXIdVuUWej43SgXl6UghAJGhIYCrCLLI26H02r2oqNlRt8/p56Iut9ywb8szI7NQMgT4P5UqejRCYX+8xFqbKhqMNIslIf/mcb11IqvW+amDKobXuOgqCBYJ5r2n11xOfn7AAuth0X3eiTADLZ7ZZfN4c44T5gB0eWMoMT+8FiDJMpgdYY0t54OUo3ENdknJNijpXDIlV+P/QSHpsMV+gZJlPcBoBH7bhQ/VJC3qtEaHSPJxCIPxS05UqUY/BxSlVDL7MvVhTx+m4SdRBbxP+R+XpX3Oh3+vT0NfFgR+nwvucVIev02i4z7t6eLT5wZEFpzaP0ox4kPb3KsUhLprE6L7+9ht0rYnmyj1cYalhsDYuomRQZ2OjSH3ug3I/FGxp8D0196v/roPI/BVwmnlyUEtTlhcrXA1CbSJLCbUXWCKnHJiCfuk8vsGdW8wOPUR2uBO5rRAF2zLdC6menMH9zcVjssMXcB1Dyz7Z+i9hKB2LqUkTB06Evuo9H98wYhO+t6owCD8ScG5LoIKC4tD8o+X4uXLlUBZgjMSbE=~-1~-1~1748711985; bm_s=YAAQh/fTF2RPsyOXAQAAk45IJwOYk3yxjwkXdWnSN6Jl82xg98kgBpWURvy+qiwFK3OH8BCmh3J9zFrKODYFZeO/QU+NHOZIdpxE6M2w0R/c47bQXm/koj8PmYuyNza9i8chrAPMNS/v5vHxoi8krNf8ZiGpTtzNoNadRL5e4c85u2QciL0H53cOM+NDNrSYwqAvHy9+KV2lcpC7MQDn5Q+6GyfQu58LdP23bgdrYLDzF/hGlZ1X+rW9ETZkx/X5LWKu6sLS3IcWApfwmaOAB3as4xC5qEQfQF7Y9faPoml4QZjU+lfcFvrEUza/8+Zku64fRLAVv3IcV1eDeekTLUf1UCPRe5/fY+IqZphqHttcoyNE/p2e4bhwEs+BGyAYND363vt6k3W2MJmOUd8lBoXNkoc1bWP0WBqf/rkyKl+oUbu2dwCbS9QA07WQxxRDCp0eZkv8Wp3dFzm2EWNktF7HXGFqXeooNeLxPRCAA1K40aPWROvkHoMsQ97vsGOvXJPVTrYKzwI2mWtq7MXAYOyaT3EktXFFXSrCVso19sEAKK7ha/RF3ZAKvVHy9eOFXnUv/dG5QVPG; bm_so=1499C522684F23F6201051690430836CE7B3F356E18A505B7361A6A6F415C7B1~YAAQh/fTFxdOsyOXAQAARoBIJwOr8PsO9dMXZNGPzZySVo35LSrcoRNSIPgspzUvFWPWBkiolGfiPofgRtNQ07oT1kQRkb4Ko+efC+8Orl0K/YvuswlGw0+Mf4ccaYhwJ99Pr8wNRkcldhrMGQFJj+GymWmxt3qJ8qWTuLuOfben6ndAut7oONY7gwg8MXlBAnVTasiOo0mTVqSIZW68kmM0nxa5M5vOMIgMxslKAHv4WrHJEnA3ugHfaLP1gPU3B7CnMfib4xPaEzgjZ/yt+rGOrgzufWdUDwwiQIFsz05vrtmM/7bGhn6w5L+UWVvxd8UIEFa00oaazqN4o5lULpMDPmPGQRjd3ptEAuFxLtSsJQWWV1g0VjddifyM4sYu9j9mmBotuxJi6MiYnaO9ypN+qy69jk9zHMxlIa48bkZihrykflpM0ut0LshYLwUqee5xjSw0nVjkUPjikIGE; bm_sz=D30D5EA1B746A72A19164669F913FF25~YAAQh/fTF+pOsyOXAQAAq4hIJxtxcW7ex8L+RPoQYcl389WbVEv7P+m/7UGR6zzglPyFBM+2Ex9JRupNDIekw+Ifc4GYu9JoKPc2n0MW/y+VYnZqg4RXen/+qI13cWBsmS218AW63BLARZDb+0d2lZkorVLLV81j72SwJ24eM7ilWKv6GDTI1ySZA0P99sXnn+i0EV3nrc/CEKxXzn9KkT/F0ofaNv4lod4OV60+3bPO5tEP/E+hWipRvSSSI38ElSV4bIV7gfn9DfsxXqRc74auO74r1ikKZzV6tWM+fTCBKpD/ENfaYzX0/Oh5gm2dMpnrTk4l8PGd5tBZClQmSjZGUxxwhfSylWJdZ/9IfgI2nOGQaZpF6K//zie/lYC+RDwBCBOAQl6wbEBAxUwI/OeLmTFGogax6JViNJitLSI/bqtUVe8YvHnDSr9IylVf3/hio+kXTxSdq1+6lrB6d/OrvVKidgurHZewY1KeIva4zR9NCLes83daLrgQZyybBIfQWF6rLwJk~3749700~3224375; rxVisitor=17487047853198CQAF3I2RRNR7UEUQEKBD3TAJ4CE050P; dtPC=41$310753549_694h44vPHCUCNGEQCFEROQOKIAMHMFBNCHFUNHG-0e0; rxvt=1748712573613|1748708446731; ak_bmsc=E52083389C24CF31AC49BD2D1EC824FA~000000000000000000000000000000~YAAQnffTFw67ntSWAQAABn7tJhs2565E6Y3DmQO6ba/0quYdNOvNkXAMPSKulGWMqm+P3oek6uTkze3iq2Ua2j1b3TyRdF9+InVbxaAKj7ttBqPIZvVkSDMrLtmjQJqb6eWBEgtTZnkzB7N5HB/eTZjUs2mZpw26DTsSui5Qkrx/MnD54Fqu+jVJ/zSnReCZqotRB7vL29XUyFMPP3RKKq1hcBkDwlHsmGWV+czDGM/rolnkiZkJOHiAGUBgvoIGzVZx+FPoSotAgGBtiV+Y0wp4jZZTiJ/rhuztP69BFdevs5AQu5k8saH7IXFVuXMnibGIvYnVWsxu3XGYlJoBxOqX1a45APeD7AXiLBB6Y2zjRJdWCFxO+bpF6JFusI7TBtWD9Q/erC36vU5vBft93BIsrqFlnaixrTSvUnFz0GYdytksjkcT4XFIONZoFDV9tixIi/iE1lZ4/IcG/ftK7UM49d8EWltXByhlmvNsSFKVtGKUhEDPER9VhenTg0LzA0/b8T4oMNq0ucRDaiL1aJc=; dtSa=-; AMCV_371C27E253DB0F910A490D4E%40AdobeOrg=179643557%7CMCIDTS%7C20240%7CMCMID%7C15958755977817203438482478641497459934%7CMCAID%7CNONE%7CMCOPTOUT-1748717953s%7CNONE%7CvVersion%7C5.5.0; bm_sv=B56C8C655D887D6C5106C6589113460D~YAAQh/fTFx9RsyOXAQAAqqBIJxvWGjM4557mT/TqmGokIgT72VPa4ObIkVcY+qFmBlXNS/JPyPsrGOF8spgcB9ZrOoRpxSluzVG9qMvb1kOcMqddyhOhk+PWK+CcaAoY+dtcurGHtb/NkLn2VSnyqQeu8L/cCmFJ0u1RsLAbtEcwvboe+QIs+6Nj139XCemv+qjmk3bFsR6KjVBVULqqa/zDQqmEPgDtUuBEAX0usYySY6GAKktAiVlJmp/EAB83Cg==~1; bm_lso=1499C522684F23F6201051690430836CE7B3F356E18A505B7361A6A6F415C7B1~YAAQh/fTFxdOsyOXAQAARoBIJwOr8PsO9dMXZNGPzZySVo35LSrcoRNSIPgspzUvFWPWBkiolGfiPofgRtNQ07oT1kQRkb4Ko+efC+8Orl0K/YvuswlGw0+Mf4ccaYhwJ99Pr8wNRkcldhrMGQFJj+GymWmxt3qJ8qWTuLuOfben6ndAut7oONY7gwg8MXlBAnVTasiOo0mTVqSIZW68kmM0nxa5M5vOMIgMxslKAHv4WrHJEnA3ugHfaLP1gPU3B7CnMfib4xPaEzgjZ/yt+rGOrgzufWdUDwwiQIFsz05vrtmM/7bGhn6w5L+UWVvxd8UIEFa00oaazqN4o5lULpMDPmPGQRjd3ptEAuFxLtSsJQWWV1g0VjddifyM4sYu9j9mmBotuxJi6MiYnaO9ypN+qy69jk9zHMxlIa48bkZihrykflpM0ut0LshYLwUqee5xjSw0nVjkUPjikIGE^1748710757062; firstPageViewTriggered=false; s_ecid=MCMID%7C15958755977817203438482478641497459934; AMCVS_371C27E253DB0F910A490D4E%40AdobeOrg=1; bm_mi=DB054DC4B6D75019BC2A2E733139F8D2~YAAQnffTFye6ntSWAQAAVnbtJhu8HvjZy7PQfhPJVWTrJclpqtUw7QPHTxEZ5NjRnmTF6Gem4hfpVXSsgOX8QnbLlq+B8gIhjpvOy9ta6r4iwLfuf/roIdbKOhSWfdpTaQOglKYyMu+Ers2g4BQe8fS9kvGjZnLLhpXi/bD8RfT+jvedkwlLpLlKBVXoq22ug1/MoaYXGC3mSMUhmjVCRBWa9fBLAzu01NJni6nfKd+prL6MJBY/PepZDergjpbsH1RD7UK0WCULikigGtXd4jgnolBTlsopmumO5GTkG8uS8WdV/tb0UvHqQEieg5tpYGAEbcpeX11SZ0Vd+ouA1chdMI3jsIz5mwlRFhx2jnZ9dwm3tEwFhLtm0A==~1; DD_guid=null; DD_modStore=03400375; _fbp=fb.1.1748704786987.1674675848; OptanonConsent=isGpcEnabled=1&datestamp=Sat+May+31+2025+11%3A59%3A16+GMT-0500+(Central+Daylight+Time)&version=202405.2.0&hosts=&groups=BG1355%3A0%2CC0004%3A0%2CBG1356%3A1%2CC0001%3A1%2CC0003%3A1%2CC0002%3A1%2CBG1357%3A1%2CC0008%3A1%2CBG1455%3A1%2CC0009%3A1&consentId=30960870-821e-4e0b-abbb-9635ee2bc495; gpcBanner=true; s_sq=krgrglobalprod%3D%2526pid%253Dhttps%25253A%25252F%25252Fwww.kroger.com%25252F%2526oid%253Dfunction%252528%252529%25257B%25255Bnativecode%25255D%25257D%2526oidt%253D2%2526ot%253DSUBMIT%26krgrmobileprod%3D%2526pid%253Dhttps%25253A%25252F%25252Fwww.kroger.com%25252F%2526oid%253Dfunction%252528%252529%25257B%25255Bnativecode%25255D%25257D%2526oidt%253D2%2526ot%253DSUBMIT; AKA_A2=A; bm_ss=ab8e18ef4e; _abck=80CFDF62AB551F43DA998B1417E4E31A~-1~YAAQk2zNF7f+rCOXAQAACGpWJw1yepqXReb0+bnhI7UioaRMF5fSwYWd2kYyCr0V6hSpG9AqOZRFSQy2Qo5IcdXqGx3Drk9TFfP400ypqNolYedYZ7Nq9LLCGGBqqgK+n1mepVeDw81Fsrmm+h7ck/PvveXbGdjp9N12B5QzNq6bbUIkZITQrOv//TjFgRNY9GRAdEhF/YUL6PUoNA+kIFRnlV6qoEP1oMxecdTjXENm0cFeGrIpGWtWqc7ZdoIoCtStI/fiOs9Y1CgmrbeRmO6EBHR4G90tKMMm8JN66gmdKn6GzAQZ09sX6oAEVHi9B7hWUdVaHEfSaxXNL9/yUPLfsUoXuzuRNC65pgEEAVYZEsfHxC2UDhBSnjfqNK7BTkzBlDL6hj74/f7lKSr+v0WBrvWeZKz+FvhN8thBMeXvUQATOr1f/Q+dGurSE02IKtWwyuxepC0Cq4FKbRDcM/SH6Peq+/9OpkJzRftgb9hmXMeWtfELmsoU6FDlpJJJhedXyMHf8951zovbsm5NWUYhjZBYruZKn0Lku5IFhOjVe5kHlBWFJ3iiqTKJs8o9CeF82ONFisf/OEKXrlNADsh6VOQt21Hnui4ms1vx/uPoD6EmwsCP0oaXK8P/zMUqrnV+Wf6znnOUuPkBEy9ST25MkXKa+2liMRUx2qsPXX0yqBa/S/5LE0DwM3RGARSghUmR9yVYbazlcNcWvf0Dz+SZ+4zT3QVBfLRQJcLUYUbks6rD4imKWnA/76/0p8wfexKPOSXMi3UVQ4D9K0FyOs6rF73dgkKnOoXfKEcyZXdDWPwvV0mpPNcMK8JUn4Q/3PPyNu+nmmVaNuX4zNCUQnHNfMfNujHqakT5WnBj/amCU8qPOPfJ/aT+47Ell/fgrLqQBzflpvRsasVW640kzccXUBDS1ISgHCc5D1yVRskTTB8lRuxhegNkgf6oCLzEuzgMeecQe2f/MMmrsyBW75C5D+ZuzL2YtgLHXglEfnGz2S5jfVNaHnPGrno/Gz5iUZ2TWCMhUIgSfejX140wYLe6DBR2HL1kZm/Ty8TRyBCmwmZRkTl9ds/GBaSOfv3xR+VE4ECPS3wSdsHuvV+18/vNxPouajqZDhw=~0~-1~1748711985; bm_s=YAAQm2zNFzLDgiOXAQAAcwnzJgOVrGqhD5sktXfobNcGNu7p0HFFdlcH+FfgOEqrsrhCQ6UlyQxVHjkZahJPjN0DO389r1Xu+Pe1XW+BHNjyY7KJ3so9WGm0x4btHLwDbe83TArasP+VquVBAADKTsqc1RgPcgLO7hUHD3qlg9+iMdsb8SxKu+Ys5zT29KOX1EyAaDMMgVLTRI1bK2toy/QO/bQC9GaGLpl0i9GvVX6Gfpi86M/VypD3CY+Y1e3rp6EIoVk8mvAz7a0uTl9TMBNli15bgPMvaG1b/6sMowtZASCcr0QLKEIaIuVU+qWk1ZHxR8uv5fvaC1lr3oRHZFKSS4C9f3hqN9D1jnzdyCWDYqTIzC4ez4qkNxH9koKdCWACPR/FkohqGuRPMc3J+4mYtfYg5JCkUDJkMJf3+PWYJzfhvY/jixbo/ziRVKsfJC/lSMK/ehsCXKW6l+/r8Vq5uKraQxN/8wgAv8XzJOPkUfW/lwDOMDMqtbKzCcs3ZllwTXeTqRw7XBe+QAgbo7ipCTWJaIWsw025oIbTLUd+ScPzkDQ3bb5I/ZmtC+80mJ/Ib15uby35; bm_sv=B56C8C655D887D6C5106C6589113460D~YAAQk2zNF7j+rCOXAQAACGpWJxuZJ20GXKoO1+do/nu2got2aygom9LoUYppaDlLtnWwILyHLrAjjjHHXmE/xkGR89WUz6KJB3AiihTz5Kp8fKePi6UEVZDyroZwPJw8EP9kY+nzLUj1ZG6SscsR61UZ6CaP6eDAOOLtQhIX3ucRG9mY8iR5lzwWDj4ARHNWwW31Fc6kG852mMnTmSTfHpH46+l3+vEKRsRqOJd/ZEYkJCspwU/o5OcA5qT4HwpTkA==~1; bm_sz=D30D5EA1B746A72A19164669F913FF25~YAAQk2zNF7n+rCOXAQAACGpWJxvbwcfOLgAQRUk1/U0nUpglO7Yk7Y9lrXVbw/mlm6q34w06H+CKafhTpXGU8iWx0LfLr80l8Ar/PjOnPJBcr5PwT/QxOtq8+AiqTZ5qKGgAEbdHnVDbXV9pnoOCzwNlpouWYdKBzP44lbhcJaNeGzTGVuYiheeOMAZ2t2NCsSwDaYxivSyrjy7duiZdGUceSvJKSKzxW/l8T7o2dV3nOV2lQd75UxPOB4C0hxzYGpN+y9wNjCLX0KkVgz31FGoagwDE/FDtnpQ5eS9i9PGonxEgyIRwX0bVQAgV4ul7OQ5adryulxnWKi6HCUahShIKK/Lihelu1dkLTj1pXCR5zIuEQZOpslfXNqRSl0qza3It4Xf2M6hFKwn6DplgpOHbxxShJz8p8THiNY8Ty6a/69Gg4unczGEzZjZBNbRAEVMzuP7CIzSdy6o2ZGPrrKdTwtKeHX5uwmHRHbELUs8Ic3An7PbQX01DLZRHgHP2NHRX5Li0mDaNNF9QRs5eDw==~3749700~3224375',
-    }
+gtin_url = "https://www.kroger.com/atlas/v1/search/v1/products-search?filter.query=honey&filter.fulfillmentMethods=IN_STORE&filter.fulfillmentMethods=PICKUP&filter.fulfillmentMethods=DELIVERY&page.offset=0&page.size=24"
 
-    response = requests.request("GET", url, headers=headers)
 
-    data = json.loads(response.text)
 
-    base_path = data['data']['productsSearch']
+sess = Session()
+ext = Extract()
 
-    product_len = len(base_path)
+gtin_page = sess.kroger_get_gtins_endpoint(gtin_url, gtin_headers)
+list_gtins = ext.kroger_extract_gtins(gtin_page)
 
-    product_upcs = []
+product_page = sess.kroger_get_products(list_gtins, product_headers)
 
-    for i in range(0,product_len):
-        upc = base_path[i]["upc"] 
-        product_upcs.append(upc)
 
-    return product_upcs
 
-def get_product_data(product_upcs: list[str]):
-    url = "https://www.kroger.com/atlas/v1/product/v2/products?filter.gtin13s=0073753919358&filter.gtin13s=0089266400102&filter.gtin13s=0001111086170&filter.gtin13s=0073753919120&filter.gtin13s=0001111085437&filter.gtin13s=0089266400104&filter.gtin13s=0001111087978&filter.gtin13s=0007218800213&filter.gtin13s=0073753919001&filter.gtin13s=0001111012316&filter.gtin13s=0085136100533&filter.gtin13s=0007500223024&filter.gtin13s=0003877883016&filter.gtin13s=0085136100578&filter.gtin13s=0001111086175&filter.gtin13s=0069824600024&filter.gtin13s=0003877883013&filter.gtin13s=0003877861016&filter.gtin13s=0003877861032&filter.gtin13s=0007500222048&filter.gtin13s=0085136100577&filter.gtin13s=0001111086181&filter.gtin13s=0001111086182&filter.gtin13s=0001111009185&filter.gtin13s=0001251189416&filter.gtin13s=0001870000020&filter.gtin13s=0003877883032&filter.gtin13s=0001111009184&filter.verified=true&projections=items.full%2Coffers.compact%2Cnutrition.label%2CvariantGroupings.compact"
-
-    for i in range(len(product_upcs)/28):
-        url = f"https://www.kroger.com/atlas/v1/product/v2/products?filter.gtin13s={i}&filter.gtin13s={i}&filter.gtin13s={i}&filter.gtin13s={i}&filter.gtin13s={i}&filter.gtin13s={i}&filter.gtin13s={i}&filter.gtin13s={i}&filter.gtin13s={i}&filter.gtin13s={i}&filter.gtin13s={i}&filter.gtin13s={i}&filter.gtin13s={i}&filter.gtin13s={i}&filter.gtin13s={i}&filter.gtin13s={i}&filter.gtin13s={i}&filter.gtin13s={i}&filter.gtin13s={i}&filter.gtin13s={i}&filter.gtin13s={i}&filter.gtin13s={i}&filter.gtin13s={i}&filter.gtin13s={i}&filter.gtin13s={i}&filter.gtin13s={i}&filter.gtin13s={i}&filter.gtin13s={i}&filter.verified=true&projections=items.full%2Coffers.compact%2Cnutrition.label%2CvariantGroupings.compact"
-
-        headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:139.0) Gecko/20100101 Firefox/139.0',
-        'Accept': 'application/json, text/plain, */*',
-        'Accept-Language': 'en-US,en;q=0.5',
-        'Accept-Encoding': 'gzip, deflate, br, zstd',
-        'x-laf-object': '[{"modality":{"type":"PICKUP","handoffLocation":{"storeId":"03400375","facilityId":"14258"},"handoffAddress":{"address":{"addressLines":["11565 S Highway 6"],"cityTown":"Sugar Land","name":"West Airport","postalCode":"77498","stateProvince":"TX","residential":false,"countryCode":"US"},"location":{"lat":29.6479694,"lng":-95.6494359}}},"sources":[{"storeId":"03400375","facilityId":"14258"}],"assortmentKeys":["03400375"],"listingKeys":["03400375"]}]',
-        #   'User-Time-Zone': 'America/Chicago',
-        'X-Kroger-Channel': 'WEB',
-        #   'x-call-origin': '{"component":"internal search","page":"internal search"}',
-        #   'x-modality': '{"type":"PICKUP","locationId":"03400375"}',
-        #   'x-modality-type': 'PICKUP',
-        #   'X-Facility-Id': '03400375',
-        #   'x-ab-test': '[{"testVersion":"A","testID":"5e3a72","testOrigin":"d3"},{"testVersion":"A","testID":"a37eed","testOrigin":"a8"},{"testVersion":"B","testID":"5388ca","testOrigin":"cb"}]',
-        #   'x-dtpc': '41$304842665_832h35vCCLTCFERMRAPNVBVENRLBRNUMTSASFKB-0e0',
-        'Connection': 'keep-alive',
-        'Referer': 'https://www.kroger.com/search?query=honey&searchType=default_search',
-        #   'Cookie': 'origin=fldc; abTest=cb_5388ca_B|3f_8aae36_A; x-active-modality={"type":"PICKUP","locationId":"03400375","source":"FALLBACK_ACTIVE_MODALITY_COOKIE","createdDate":1748704783699}; dtCookie=v_4_srv_41_sn_0EEC15BCFD96BCEBC502DB5793A17B18_perc_100000_ol_0_mul_1_app-3A81222ad3b2deb1ef_1_rcs-3Acss_0; sid=08de5513-d70f-37ca-aa6c-63e0744251b5; pid=aa6c63e0-7442-08de-51b5-5513d70f37ca; AKA_A2=A; akaalb_KT_Digital_BannerSites=~op=KT_Digital_BannerSites_KCVG_Weighted:cdc|KT_Digital_BannerSites_KCVG:hdc|KT_Digital_BannerSites_Legacy:kcvg|~rv=62~m=cdc:0|hdc:0|kcvg:0|~os=49d9e32c4b6129ccff2e66f9d0390271~id=0a38e6fbf18e9ffb28c6bde3ceffed33; bm_ss=ab8e18ef4e; _abck=80CFDF62AB551F43DA998B1417E4E31A~-1~YAAQnffTF7vPntSWAQAAjFjuJg0XQ/DX8YG3ihuRp3c3XwOib8KqV3MNxiihbkrzbmPKVdlDhZwrjSfYJXPAQ8x3LpAExPDtNish/abGhtscHFeYB1cmvqB0TKEIHshNSWy1pA14Ohl6V8FIuo3LKtOpcjgp/vzeSw0PQPjKehWHwXVZsV6P3ES36bJvn/W3qaWwJu4JqDopjw07qnn0sxVxgvvtWzxJic+dgTZ88JZtKXIheFOJG1W8XHWYN4I8pIf9IzczyktuyzMgLwKcZ8NsEIFEyr0ounF1lJoOdl1oN+QL0H2WH8gLWcWGrCqVgIyPMCBf/ewO5qgGrrhIz6BeCVTicT6jd3Ssr4arVZpNLlvmXsHgm1haHYB6SGhQgNMKjIeIsc9qfNJrNm6/29Vhx7Usjh9FD6s4DrZ/fLzWASMZJKFQBCMfCpYYE/WTwMHfPhtS+SBOrYrFzYaGfW6zIfIuEy8yz6S7gWOqP8hM0VOlJaFNqM2ZlC4guj8XWCN2BBDmxPT+o6uUZPKpymP5NMOD++B7OTGU7cq4dARAH6IBlfJ4713bpcspkewkQim7MM7SjiCIvLNmzpNHPH2XCPJXUhyTDxZK3jVQlxy0R1H0oC68wn8Da8LmT8qBArYA+MjGuTsHf5o2m5MKz22qlNnJt9lYH6UEPLc3VoLuklPdJsz+XpcyMV6VVYDujwVbNFQaYQJVX+DM7ppViSLPH/1mt2+4VBr4kS9tqXrb3pdUp53mm4M89xvPpJBGLC+iZVSIiEU4+fFtQx/3XKj8RaCNrr4+83YppLOmw4G4SJ06BbixifuYo7Sjy8CSCgLZpA541C/V2PJjNkjPFp+4fUA3tV7G9tDx1FkBHiTNbREA4K86hDJu52gPP5aEcI3btQJ55refetwQPWngiv3TuXJtTcQ+x8xjbxuuXo1O9UyD8102xTAwfZx4/mMebo4IKKaUKrKmILwTTiDl~-1~-1~1748708385; bm_s=YAAQnffTF7zPntSWAQAAjFjuJgOfCIni1F8q5ogzwwTvSqPPtmV+PPY1QICXzT+oHMLDr8F1ecuvEbltPixIYHdmn3DGTrdKNH2/BRNHjVQ75mah0Q4wKk8LbuaTKvekIvB/FzB6zJMNEWPH68hQjbMPIR1Xdt04DFOEn4rsDzfZ5OTjBquh9shDgl390w0Myn+AT43Qhzn9EUCRxxLFc5pLeHxUI5yVAPeIVK8GCX2TllNBvVL7+aQBexx7e1TXhm/uT6y54FqZOsykNQAbWU+1HWqKT35dXTNOW7KIRiMNJ0hJ2WT0HAiUMh1uXdCEIvUg6zK1/8mGEqV6t3C6PbiQCYUhrKTxxEA+1kbRJGUaS+V66cK1iE76CUNFIV73F+m25kSs6rMEA7PXr5jQHz2HB85uxtw1/dGaAafjoyPWqpY4PNudky2dgQTt4kyXYGkNRcSP4bNzn0xWJtcUpnNJDC5WUDChlwuGMqdVeAsGG3ZuY1WorTr0izmisrSPDTajBEnAAzuc5k66TCiR3k6iW7vl1UXMpD4L5BBk8OJ0rb4qOEv94uO1neZ1Hkgf/UEHLw8tVYPp; bm_so=B5F5F4C03133CB4BD997D08AFF2EE06ABA443ECA86F27D10B20FB84E81680908~YAAQnffTF+bOntSWAQAAfFHuJgP7wkmj/xD1gI4pFAPg+sonzCrksxiAjMOIcCRc2clHNQj35aFgPXad+PNfZA0ofcOasDn5ciE5bE5bVSp8VSzOV8IXgfzV//1ExRoSzoOCGOIRKYRGavUke+/LfDptjJujSNqY/zosUv3hzWXSxxU3FWrKqaEvQ+9/LV0IhHc3yj0S2fBtZJMoqF96vy5biRg+8dwvGgmzq3wcoKFhfqwhBZQ8hvTpZ32kU2m+oKKdECVR0L9K+SGU2gbEDal1juV/6yAvyvozsxsABWM4b1mrwFYlMNmJboPwsFtBP3qnZyqllhkaT9/OmROvQ+fCt8EVx8Jpp39tlQAOvzZulF2XZ0i7hHfYdS2VniRGig5sRW+FVlGTCzZMp65/3LA33pOrg35mMSSOnRltO7fCcy6izS8Nm3y+VHIyw1AFlLrp5hYcMUwlppeOQtxR; bm_sz=D30D5EA1B746A72A19164669F913FF25~YAAQnffTF77PntSWAQAAjFjuJhuWHTt5adPtKdsAJAFMYZp61prLXuulAe8h4g1bcImT5W9G8hyti7XOFJ9VFC1AACqZK3xz8Swf8fLOJyV2o6c6Q7PCCWyXJyNF1aebIon1g3P3wKKhI0eydhhQAAHFPFFUXhIyaa7hB+s3jl2ok0zq9kJ+7SAcLRYqEHGDUT8M/+nDoTFDSvw5CKFvAum2IYzm1bplYTDfUW90uk5dVZyQItT4Jsj3dJ9ZYqL2IOnmEIq0JnARTK6frGZK93EU/pr4ZD7ToeXrZExoRElfneeHU+MFe3Y3UbJiJBb2oWIou/5hPLuv70e53WG8EzwyI92Zlljx0sGbFHLQAdPHRS4ItBfgepnmZcuOhNpwdX7tf7lw8CdervIIrANcYb3eURP64wCm5URjg5ZdThsQBv3AHJY8cpCGWe/gEEx7qrTMBtNJtG0nSnD6FF1r5+cI4yWQYi3DV/N1OH4=~3749700~3224375; rxVisitor=17487047853198CQAF3I2RRNR7UEUQEKBD3TAJ4CE050P; dtPC=41$304842665_832h35vCCLTCFERMRAPNVBVENRLBRNUMTSASFKB-0e0; rxvt=1748706644375|1748704785320; ak_bmsc=E52083389C24CF31AC49BD2D1EC824FA~000000000000000000000000000000~YAAQnffTFw67ntSWAQAABn7tJhs2565E6Y3DmQO6ba/0quYdNOvNkXAMPSKulGWMqm+P3oek6uTkze3iq2Ua2j1b3TyRdF9+InVbxaAKj7ttBqPIZvVkSDMrLtmjQJqb6eWBEgtTZnkzB7N5HB/eTZjUs2mZpw26DTsSui5Qkrx/MnD54Fqu+jVJ/zSnReCZqotRB7vL29XUyFMPP3RKKq1hcBkDwlHsmGWV+czDGM/rolnkiZkJOHiAGUBgvoIGzVZx+FPoSotAgGBtiV+Y0wp4jZZTiJ/rhuztP69BFdevs5AQu5k8saH7IXFVuXMnibGIvYnVWsxu3XGYlJoBxOqX1a45APeD7AXiLBB6Y2zjRJdWCFxO+bpF6JFusI7TBtWD9Q/erC36vU5vBft93BIsrqFlnaixrTSvUnFz0GYdytksjkcT4XFIONZoFDV9tixIi/iE1lZ4/IcG/ftK7UM49d8EWltXByhlmvNsSFKVtGKUhEDPER9VhenTg0LzA0/b8T4oMNq0ucRDaiL1aJc=; dtSa=-; AMCV_371C27E253DB0F910A490D4E%40AdobeOrg=179643557%7CMCIDTS%7C20240%7CMCMID%7C15958755977817203438482478641497459934%7CMCAID%7CNONE%7CMCOPTOUT-1748712043s%7CNONE%7CvVersion%7C5.5.0; bm_sv=B56C8C655D887D6C5106C6589113460D~YAAQnffTF73PntSWAQAAjFjuJhuVf5kTJyimsfxgq0ORsxtftUyxCt9ImJlie/3Ptrl3WlcpwemaZl+/hStbXaaEeNMrgE/6FXK/7xmns1EYKbg7+mlbOu0WDHYjoLj/sBRi0lDVwV6UcapByqK39dWApBcKAoGayTYAIhLAdYLVnMKdd7JDokP2P+q9DpT73QHQSfbmQ/Hq3/ICd/WDuH0quu+I0WBGa1YhnYQqtkI8CdQxQrMgdGFdvv/yXhYR4A==~1; bm_lso=7ABE6CBFC4531B31D18B702B672E5D79DF6125484415FF85C040F0A42B2BCD6F~YAAQnffTF5HFntSWAQAASfntJgODfZ5IOo9aVfuRTJ4uyYa3aWOW73w3wANpkp8CbTKyEGkdZ/IZrs3rW3TftbfXTZ1Mouy1I3PBTzegm4FBpSuYTr0jkiSl6D97j/fhRVMwVs9iQ2byl7v3jHsR+828mZnOkWrzYorUxv2j6hEndTb15FAyDVM3kXkXAWj7qtHJAJI48pFKxqmusZL3yHYmj+bL6a+qANIju9DTd0kkr9TqWLeg76UZtlJAGb1Ynud1D5PJIIdrXpyosCHOyr0ivdeWG3PS6RsnV98TdbRfIyYIKtCUeefFo0NXEPVADIY7eqKo/vv7oZ3v7SFRpEv/w62W4UpE19Bqm3Xl4PoNbWiKseixETsFhE9tTw0Cs2B/nPK+mX07e77Xr9Xfy/W19gwiXyQG05+aMPoglB/8jdcEDInm7/5mCBxUjZVkmeRi3983h4nIJZHwQwuy^1748704823443; firstPageViewTriggered=false; s_ecid=MCMID%7C15958755977817203438482478641497459934; AMCVS_371C27E253DB0F910A490D4E%40AdobeOrg=1; bm_mi=DB054DC4B6D75019BC2A2E733139F8D2~YAAQnffTFye6ntSWAQAAVnbtJhu8HvjZy7PQfhPJVWTrJclpqtUw7QPHTxEZ5NjRnmTF6Gem4hfpVXSsgOX8QnbLlq+B8gIhjpvOy9ta6r4iwLfuf/roIdbKOhSWfdpTaQOglKYyMu+Ers2g4BQe8fS9kvGjZnLLhpXi/bD8RfT+jvedkwlLpLlKBVXoq22ug1/MoaYXGC3mSMUhmjVCRBWa9fBLAzu01NJni6nfKd+prL6MJBY/PepZDergjpbsH1RD7UK0WCULikigGtXd4jgnolBTlsopmumO5GTkG8uS8WdV/tb0UvHqQEieg5tpYGAEbcpeX11SZ0Vd+ouA1chdMI3jsIz5mwlRFhx2jnZ9dwm3tEwFhLtm0A==~1; DD_guid=null; DD_modStore=03400375; _fbp=fb.1.1748704786987.1674675848; OptanonConsent=isGpcEnabled=1&datestamp=Sat+May+31+2025+10%3A20%3A21+GMT-0500+(Central+Daylight+Time)&version=202405.2.0&hosts=&groups=BG1355%3A0%2CC0004%3A0%2CBG1356%3A1%2CC0001%3A1%2CC0003%3A1%2CC0002%3A1%2CBG1357%3A1%2CC0008%3A1%2CBG1455%3A1%2CC0009%3A1&consentId=30960870-821e-4e0b-abbb-9635ee2bc495; gpcBanner=true; s_sq=krgrglobalprod%3D%2526pid%253Dhttps%25253A%25252F%25252Fwww.kroger.com%25252F%2526oid%253Dfunction%252528%252529%25257B%25255Bnativecode%25255D%25257D%2526oidt%253D2%2526ot%253DSUBMIT%26krgrmobileprod%3D%2526pid%253Dhttps%25253A%25252F%25252Fwww.kroger.com%25252F%2526oid%253Dfunction%252528%252529%25257B%25255Bnativecode%25255D%25257D%2526oidt%253D2%2526ot%253DSUBMIT; _abck=80CFDF62AB551F43DA998B1417E4E31A~-1~YAAQm2zNFzHDgiOXAQAAcwnzJg0kLBUlsm2ecOLkFrvSzAbpErcE2icY/RE0ljkIAukKy4NucpFNnMw3CQ1VZo3dcatE9eWQdowHppfK7Vw/XShChFwaWuuCAltZqL69KD8+VKgckpBu0o04HL+XCj8SiJ/RvvEHV1aCdLzOdDnMz9JV5zRVHXFtJopd6OqwcBW8afNpPwp5RBRdLp4R1PBkf9Myuu7lXo4vEUjw74d4lSF/RvS/yQYd23bEMoB6VNL1Rx/Y36PRoG8h3yW42R3LUG2U60j/Yu0JMu/JJ39Q0BvLslUx7Mur3fAjwUsnbXWhAR//+C7847h5G+zb9PTSRwB6JGQw8k5WF8zL5Pu9vo6avxd65XDM3p+dDvfOE7JKI0rKkp0TAeUgZexP0usa4fLJEWFrtG4UGWmL/mJMjePmWqJ9UJcd3qUwTkpyh4tzMq9R2rI0dlPxTdkeoEiIx6HeA/poHCBdnQq4rEG030ElRoxIWtMfeYmkJ3mklceIo3pjEaqBKVzQpvlrf3l9BvEnIJGYVGaYDDhX2kx33V/ZO+PMKbPYLjQ5akosQPqQ5nT5f0yzHvzM5ITFL29/ayrVOzRsJIH+TLogo5wzraQ/TltnJFvKvPW8UWje3yEAeMu6cWrS7GobqNosPdAJUHBIWgUn6QMBmT5OCJ/Y18nt01WJWDXbORBhS72LqfURhxHy+TyeVD9cTXqHspq+4gjU9GorMkDRm27DAyOKZjeni0Nte6KnXJeYl44Mxnsa552GQk93lNa415n1xJZTjOOubSKON6bm2DSS2Al9qvn8kF6W3yDVjA8Mvuf8LdsJtSHfMrBISzWa+RyXa59CJpH+Ph9yf0R64Kh/b/fxIbWnNUK2EMGMtDSqBHMc23kyr72vS7a2XC3frBNKcLrvvT91hnpBLfamQu1kP0wBsn1wm/v2N5Q+LNXytyWXi1Sd8BgmSOFtb7TZsDc=~0~-1~1748708385; bm_s=YAAQm2zNFzLDgiOXAQAAcwnzJgOVrGqhD5sktXfobNcGNu7p0HFFdlcH+FfgOEqrsrhCQ6UlyQxVHjkZahJPjN0DO389r1Xu+Pe1XW+BHNjyY7KJ3so9WGm0x4btHLwDbe83TArasP+VquVBAADKTsqc1RgPcgLO7hUHD3qlg9+iMdsb8SxKu+Ys5zT29KOX1EyAaDMMgVLTRI1bK2toy/QO/bQC9GaGLpl0i9GvVX6Gfpi86M/VypD3CY+Y1e3rp6EIoVk8mvAz7a0uTl9TMBNli15bgPMvaG1b/6sMowtZASCcr0QLKEIaIuVU+qWk1ZHxR8uv5fvaC1lr3oRHZFKSS4C9f3hqN9D1jnzdyCWDYqTIzC4ez4qkNxH9koKdCWACPR/FkohqGuRPMc3J+4mYtfYg5JCkUDJkMJf3+PWYJzfhvY/jixbo/ziRVKsfJC/lSMK/ehsCXKW6l+/r8Vq5uKraQxN/8wgAv8XzJOPkUfW/lwDOMDMqtbKzCcs3ZllwTXeTqRw7XBe+QAgbo7ipCTWJaIWsw025oIbTLUd+ScPzkDQ3bb5I/ZmtC+80mJ/Ib15uby35; bm_sv=B56C8C655D887D6C5106C6589113460D~YAAQm2zNFzPDgiOXAQAAcwnzJhuxW6s3AJcv7TxsRXxRNYJpYwe/O6Vzx6poVRUjtvJs3zqgYUEHH9fuGeJRS9qhWLMpZfcNT1hqQuLL4UmA7Fk+sPzMBT7nsTaxJ6LrYMFtUN+Agms95eQf0PKrFuh03uj+PnU5yMA4UPCoAklEinC0ebLp1QFZV+SXmzUk9HhNx4WjRgNKBQ+8f7Y3DQi/JMjsNlHxd6Yq0mx2a84UBkinzeE8OKF10xUVq3nXwg==~1',
-        #   'Sec-Fetch-Dest': 'empty',
-        #   'Sec-Fetch-Mode': 'cors',
-        #   'Sec-Fetch-Site': 'same-origin',
-        #   'Sec-GPC': '1',
-        #   'TE': 'trailers'
-        }
-
-        response = requests.request("GET", url, headers=headers)
-
-        data = json.loads(response.text)
-
-        print(data)
-
-        # print(data['data']['products']) 
-        product_num = 1
-
-        original_path = data['data']['products'][product_num]
-
-        title = original_path['item']['description']
-        brand_name = original_path['item']['brand']['name']
-        product_upc = original_path['item']['upc']
-        num_reviews = original_path['item']['ratingsAndReviewsAggregate']['numberOfReviews']
-        rating = original_path['item']['ratingsAndReviewsAggregate']['averageRating']
-        description = original_path['item']['romanceDescription']
-        promo_price = original_path['price']['storePrices']['promo']['unitPrice']
-        promo_price_per_ounce = original_path['price']['storePrices']['promo']['equivalizedUnitPriceString']
-        promo_expiration = original_path['price']['storePrices']['promo']['expirationDate']['value']
-        reg_price = original_path['price']['storePrices']['regular']['unitPrice']
-        reg_price_per_ounce = original_path['price']['storePrices']['regular']['equivalizedUnitPriceString']
-        inventory_num  = original_path['inventorySummaries'][0]['availableToSell']
-        inventory_status = original_path['inventorySummaries'][0]['stockLevel']
-        country_origin = original_path['item']['countriesOfOrigin']
-        weight = original_path['item']['customerFacingSize']
-        aisle_number = original_path['location']['locations'][0]['aisle']['number']
-        aisle_side = original_path['location']['locations'][0]['aisle']['side']
-        aisle_bay = original_path['location']['locations'][0]['bayInAisle']
-        aisle_facings = original_path['location']['locations'][0]['numOfFacings']
-        shelf_num = original_path['location']['locations'][0]['physicalShelfNumber']
-        shelf_position = original_path['location']['locations'][0]['shelfPositionInBay']
-        seo_description = original_path['item']['seoDescription']
-
-        product_data = {
-            "title": title, 
-            "brand_name": brand_name, 
-            "product_upc": product_upc,  
-            "num_reviews": num_reviews,  
-            "rating": rating, 
-            "description": description, 
-            "promo_price": promo_price, 
-            "promo_price_per_ounce": promo_price_per_ounce, 
-            "promo_expiration": promo_expiration, 
-            "reg_price": reg_price, 
-            "reg_price_per_ounce": reg_price_per_ounce, 
-            "inventory_num": inventory_num,  
-            "inventory_status": inventory_status, 
-            "country_origin": country_origin, 
-            "weight": weight, 
-            "aisle_number": aisle_number,
-            "aisle_side": aisle_side, 
-            "aisle_bay": aisle_bay, 
-            "aisle_facings": aisle_facings, 
-            "shelf_num": shelf_num,  
-            "shelf_position": shelf_position, 
-            "seo_description": seo_description,
-        }
-
-# print(product_data)

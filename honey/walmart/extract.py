@@ -23,10 +23,10 @@ class Extract:
     def safely_traverse_dict(self, data: dict[str, any], *keys) -> any:
         for key in keys:
             try:
-                value = data[key]
+                data = data[key]
             except (KeyError, TypeError):
                 return None
-        return value
+        return data
     
     def get_num_products(self, data: dict[str,any]) -> int:
         try: 
@@ -55,7 +55,7 @@ class Extract:
                 "rating":rating, 
                 "num_reviews":num_reviews, 
                 "price":price, 
-                "price_per_ounce":price_per_ounce
+                "price_per_ounce":price_per_ounce,
             }
             extracted_data.append(product_data)
         return extracted_data

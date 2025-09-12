@@ -1,5 +1,6 @@
 import mysql.connector
 import pandas as pd 
+from datetime import datetime  
 from config import CONFIG
 
 class Load: 
@@ -10,8 +11,9 @@ class Load:
             password=CONFIG['password'],
             database=CONFIG['database']
         )
+        self.date =  datetime.today().strftime('%Y-%m-%d')
 
-    def insert_data(self, df: pd.DataFrame, table_name: str) -> str: 
+    def load_database(self, df: pd.DataFrame, table_name: str) -> str: 
         """Insert cleaned data into a MySQL table""" 
         my_cursor = self.database.cursor()
 
@@ -29,3 +31,14 @@ class Load:
         self.database.commit()
 
         return print(f'Clean data successfully inserted into {table_name}!')
+    
+    def load_csv(self, df: pd.DataFrame) -> str: 
+        df.to_csv(f"walmart_data_{self.date}.csv")
+        return print("Data was saved to csv!")
+    
+    def controller(self, load_method: str, df: pd.DataFrame, table_name: str) -> str: 
+        if load_method == 'database': 
+            result = self.load_database(df, table_name)
+        elif load_method == 'csv':
+            result = self.load_csv(df)
+        return result

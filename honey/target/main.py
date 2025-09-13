@@ -4,19 +4,18 @@ from transform import Transform
 from load import Load
 from headers import TARGET_HEADERS
 
-def target_pipeline() -> str:
-    # Instantiate all classes (move this somewhere else??)
+def target_pipeline(query: str, load_method: str) -> str:
     session = Session(TARGET_HEADERS)
     extract = Extract()
     transform = Transform()
     load = Load()
     
     # Execute the pipeline 
-    data = extract.traverse_all_pages(session)
+    data = extract.traverse_all_pages(session, query)
     df = transform.clean_data(data)
-    load_data = load.insert_data(df, "target_honey_data")
+    load_data = load.controller(load_method, df)
 
     return load_data
 
 if __name__ == '__main__': 
-    target_pipeline()
+    target_pipeline('honey', 'database')

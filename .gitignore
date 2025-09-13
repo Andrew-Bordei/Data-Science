@@ -13,3 +13,5 @@ honey/load/insert_old_data.ipynb
 /honey/target/__pycache__
 /honey/transform/__pycache__
 /honey/walmart/__pycache__
+/honey/amazon/__pycache__
+honey/target_data_2025-09-13.csv

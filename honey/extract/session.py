@@ -1,6 +1,6 @@
 import json
 import requests
-from scraper.headers import HEADERS
+from amazon.headers import HEADERS
 import random
 
 class Session:
